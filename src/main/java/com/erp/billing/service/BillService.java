@@ -85,7 +85,8 @@ public class BillService {
     }
     
     public BillResponse getBillDetails(Integer studentId, Integer billId) {
-        StudentBill studentBill = studentBillRepository.findByStudentIdAndBillId(studentId, billId)
+        // Verify student has access to this bill
+        studentBillRepository.findByStudentIdAndBillId(studentId, billId)
                 .orElseThrow(() -> new ResourceNotFoundException("Bill not found for student"));
         
         Bill bill = billRepository.findById(billId)

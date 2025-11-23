@@ -33,7 +33,7 @@ public class AuthService {
             // For demo purposes: use email as password (since password field doesn't exist in DB)
             // In production, you should have a password field and use password encoder
             try {
-                Authentication authentication = authenticationManager.authenticate(
+                authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                         loginRequest.getEmail(),
                         loginRequest.getPassword()
