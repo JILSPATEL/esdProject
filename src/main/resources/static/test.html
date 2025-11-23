@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing System - Test Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #5568d3;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .result pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 12px;
+        }
+        
+        .error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+        
+        .success {
+            background: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+        
+        .bill-card {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .bill-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .payment-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 3px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-paid {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status-due {
+            background: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏫 Billing System - Test Interface</h1>
+        
+        <!-- Login Section -->
+        <div class="section">
+            <h2>1. Login</h2>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="Enter student email" value="">
+            </div>
+            <div class="form-group">
+                <label for="password">Password (use email for demo):</label>
+                <input type="password" id="password" placeholder="Enter password (use email)" value="">
+            </div>
+            <button onclick="login()">Login</button>
+            <div id="loginResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- Bill History Section -->
+        <div class="section">
+            <h2>2. View Bill History</h2>
+            <button onclick="getBillHistory()" id="historyBtn" disabled>Get Bill History</button>
+            <div id="historyResult" class="result" style="display: none;"></div>
+        </div>
+        
+        <!-- Download Receipt Section -->
+        <div class="section">
+            <h2>3. Download Receipt</h2>
+            <div class="form-group">
+                <label for="billId">Bill ID:</label>
+                <input type="number" id="billId" placeholder="Enter bill ID">
+            </div>
+            <button onclick="downloadReceipt()" id="receiptBtn" disabled>Download Receipt</button>
+        </div>
+    </div>
+    
+    <script>
+        let token = '';
+        
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('loginResult');
+            
+            if (!email || !password) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = 'Please enter both email and password';
+                resultDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    token = data.data.token;
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `<strong>Login Successful!</strong><br>Token: ${token.substring(0, 50)}...<br>Student ID: ${data.data.studentId}`;
+                    resultDiv.style.display = 'block';
+                    
+                    // Enable other buttons
+                    document.getElementById('historyBtn').disabled = false;
+                    document.getElementById('receiptBtn').disabled = false;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<strong>Login Failed:</strong> ${data.message || 'Unknown error'}`;
+                    resultDiv.style.display = 'block';
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+                resultDiv.style.display = 'block';
+            }
+        }
+        
+        async function getBillHistory() {
+            const resultDiv = document.getElementById('historyResult');
+            
+            if (!token) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = 'Please login first';
+                resultDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/bills/history', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    resultDiv.className = 'result success';
+                    let html = '<strong>Bill History:</strong><br><br>';
+                    
+                    // Due Bills
+                    if (data.data.dueBills && data.data.dueBills.length > 0) {
+                        html += '<h3>Due Bills:</h3>';
+                        data.data.dueBills.forEach(bill => {
+                            html += generateBillCard(bill);
+                        });
+                    }
+                    
+                    // Paid Bills
+                    if (data.data.paidBills && data.data.paidBills.length > 0) {
+                        html += '<h3>Paid Bills:</h3>';
+                        data.data.paidBills.forEach(bill => {
+                            html += generateBillCard(bill);
+                        });
+                    }
+                    
+                    if (data.data.dueBills.length === 0 && data.data.paidBills.length === 0) {
+                        html += '<p>No bills found.</p>';
+                    }
+                    
+                    resultDiv.innerHTML = html;
+                    resultDiv.style.display = 'block';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<strong>Error:</strong> ${data.message || 'Unknown error'}`;
+                    resultDiv.style.display = 'block';
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<strong>Error:</strong> ${error.message}`;
+                resultDiv.style.display = 'block';
+            }
+        }
+        
+        function generateBillCard(bill) {
+            const statusClass = bill.isPaid ? 'status-paid' : 'status-due';
+            const statusText = bill.isPaid ? 'PAID' : 'DUE';
+            
+            let html = `<div class="bill-card">
+                <h3>Bill #${bill.billId} <span class="status-badge ${statusClass}">${statusText}</span></h3>
+                <p><strong>Description:</strong> ${bill.description || 'N/A'}</p>
+                <p><strong>Amount:</strong> $${bill.amount}</p>
+                <p><strong>Total Paid:</strong> $${bill.totalPaid}</p>
+                <p><strong>Remaining:</strong> $${bill.remainingAmount}</p>
+                <p><strong>Bill Date:</strong> ${bill.billDate}</p>
+                <p><strong>Deadline:</strong> ${bill.deadline}</p>`;
+            
+            if (bill.payments && bill.payments.length > 0) {
+                html += '<p><strong>Payments:</strong></p>';
+                bill.payments.forEach(payment => {
+                    html += `<div class="payment-item">
+                        Payment #${payment.paymentId}: $${payment.amount} on ${new Date(payment.paymentDate).toLocaleString()}
+                    </div>`;
+                });
+            }
+            
+            html += '</div>';
+            return html;
+        }
+        
+        async function downloadReceipt() {
+            const billId = document.getElementById('billId').value;
+            
+            if (!token) {
+                alert('Please login first');
+                return;
+            }
+            
+            if (!billId) {
+                alert('Please enter a bill ID');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`http://localhost:8080/api/receipts/${billId}/download`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `receipt_${billId}.txt`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    alert('Receipt downloaded successfully!');
+                } else {
+                    const data = await response.json();
+                    alert(`Error: ${data.message || 'Failed to download receipt'}`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>
+
