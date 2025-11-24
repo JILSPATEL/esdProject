@@ -136,7 +136,7 @@ const DashboardPage = () => {
 
   return (
     <div className="screen dashboard-screen">
-      <div className="after-login-title">After login</div>
+      {/* <div className="after-login-title">After login</div> */}
       <div className="dashboard-card">
         <header className="student-header">
           <div className="student-name">
