@@ -40,7 +40,15 @@ public class AuthService {
         }
         
         String token = jwtUtil.generateToken(student.getEmail(), student.getStudentId());
-        return new LoginResponse(token, student.getEmail(), student.getStudentId(), "Google login successful");
+        return new LoginResponse(
+                token,
+                student.getEmail(),
+                student.getStudentId(),
+                student.getFirstName(),
+                student.getLastName(),
+                student.getRollNumber(),
+                "Google login successful"
+        );
     }
 }
 
