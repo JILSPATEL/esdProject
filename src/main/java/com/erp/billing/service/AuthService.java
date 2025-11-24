@@ -5,11 +5,10 @@ import com.erp.billing.dto.LoginResponse;
 import com.erp.billing.entity.Student;
 import com.erp.billing.exception.UnauthorizedException;
 import com.erp.billing.repository.StudentRepository;
+import com.erp.billing.security.GoogleTokenVerifier;
 import com.erp.billing.security.JwtUtil;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,29 +21,26 @@ public class AuthService {
     private JwtUtil jwtUtil;
     
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private GoogleTokenVerifier googleTokenVerifier;
     
     public LoginResponse login(LoginRequest loginRequest) {
-        try {
-            Student student = studentRepository.findByEmail(loginRequest.getEmail())
-                    .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
-            
-            // Authenticate using BCrypt password encoder
-            // The AuthenticationManager will use CustomUserDetailsService to load user
-            // and BCryptPasswordEncoder to compare passwords
-            authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                    loginRequest.getEmail(),
-                    loginRequest.getPassword()
-                )
-            );
-            
-            String token = jwtUtil.generateToken(student.getEmail(), student.getStudentId());
-            
-            return new LoginResponse(token, student.getEmail(), student.getStudentId(), "Login successful");
-        } catch (BadCredentialsException e) {
-            throw new UnauthorizedException("Invalid email or password");
+        GoogleIdToken.Payload payload = googleTokenVerifier.verify(loginRequest.getCredential());
+        String email = payload.getEmail();
+        
+        if (email == null || email.isBlank()) {
+            throw new UnauthorizedException("Google account email is missing");
         }
+        
+        Student student = studentRepository.findByEmail(email)
+                .orElseThrow(() -> new UnauthorizedException("Email is not registered in the system"));
+        
+        Boolean emailVerified = (Boolean) payload.get("email_verified");
+        if (emailVerified != null && !emailVerified) {
+            throw new UnauthorizedException("Google account email is not verified");
+        }
+        
+        String token = jwtUtil.generateToken(student.getEmail(), student.getStudentId());
+        return new LoginResponse(token, student.getEmail(), student.getStudentId(), "Google login successful");
     }
 }
 

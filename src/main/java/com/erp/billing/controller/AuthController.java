@@ -18,9 +18,9 @@ public class AuthController {
     private AuthService authService;
     
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<ApiResponse<LoginResponse>> loginWithGoogle(@Valid @RequestBody LoginRequest loginRequest) {
         LoginResponse response = authService.login(loginRequest);
-        return ResponseEntity.ok(ApiResponse.success(response, "Login successful"));
+        return ResponseEntity.ok(ApiResponse.success(response, "Google login successful"));
     }
 }
 

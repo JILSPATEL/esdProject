@@ -24,8 +24,8 @@ ALTER TABLE student_payment AUTO_INCREMENT = 1;
 -- Passwords are BCrypt hashed
 -- ============================================
 INSERT INTO students (roll_number, first_name, last_name, email, password, cgpa, total_credits, graduate_year, domain_id, specialisation_id) VALUES
-('STU001', 'John', 'Doe', 'john.doe@university.edu', '$2a$10$Kt0RjBGtiSkeCH48rgY/SeFjQcKXnrbzZO2o9CauDhnsMRCEEV6gu', 8.5, 120, 2025, 1, 1),  -- Password: John@STU001
-('STU002', 'Jane', 'Smith', 'jane.smith@university.edu', '$2a$10$JR87RPjU3L5H//mvA7MLyOEGSU9pRFGX2NBR.KCyajNfyLeVTFe1i', 9.2, 115, 2025, 1, 1),  -- Password: Jane@STU002
+('STU001', 'John', 'Doe', 'fsnd09768@gmail.com', '$2b$10$z8t5sUxT6wsz/8qWZ5e3QO7N0zLtA44gLeD1B5o3uV4Tz5C2syiJ6', 8.5, 120, 2025, 1, 1),  -- Password: John@STU001
+('STU002', 'Jane', 'Smith', '201430142023.cse.jils@gmail.com', '$2b$10$6I8vH3Jr5uM8nQeu5fLvEezf9hUuQdIFN4ZOrwG4Vv8D7ZVkbYjXq', 9.2, 115, 2025, 1, 1),  -- Password: Jane@STU002
 ('STU003', 'Michael', 'Johnson', 'michael.j@university.edu', '$2a$10$fmSsdjmS93Rw/DGGPiwQie52Ye4MzDAeuc00dEA.OEbP//4q5sFou', 7.8, 110, 2026, 2, 2),  -- Password: Michael@STU003
 ('STU004', 'Emily', 'Williams', 'emily.w@university.edu', '$2a$10$dB5HniqeF6WXaanLcpIdDe8LhrDSsPA0PhMLVDndifZRW7kRcA9BC', 8.9, 125, 2025, 1, 1),  -- Password: Emily@STU004
 ('STU005', 'David', 'Brown', 'david.brown@university.edu', '$2a$10$d1LQ2l9UJPNTQlpu57GCpegsKTxfITKx7y65rHHr6tn8wugneYjUi', 7.5, 105, 2026, 2, 2),  -- Password: David@STU005

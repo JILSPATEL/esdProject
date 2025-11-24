@@ -2,36 +2,27 @@ package com.erp.billing.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
+/**
+ * Carries the Google ID token issued on the client side.
+ */
 public class LoginRequest {
     
-    @NotBlank(message = "Email is required")
-    private String email;
-    
-    @NotBlank(message = "Password is required")
-    private String password;
+    @NotBlank(message = "Google credential is required")
+    private String credential;
     
     public LoginRequest() {
     }
     
-    public LoginRequest(String email, String password) {
-        this.email = email;
-        this.password = password;
+    public LoginRequest(String credential) {
+        this.credential = credential;
     }
     
-    public String getEmail() {
-        return email;
+    public String getCredential() {
+        return credential;
     }
     
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    
-    public String getPassword() {
-        return password;
-    }
-    
-    public void setPassword(String password) {
-        this.password = password;
+    public void setCredential(String credential) {
+        this.credential = credential;
     }
 }
 
