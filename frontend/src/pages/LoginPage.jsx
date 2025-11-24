@@ -29,6 +29,7 @@ const LoginPage = () => {
     script.onload = () => setScriptLoaded(true);
     script.onerror = () => setError('Unable to load Google services. Please refresh.');
     document.body.appendChild(script);
+
     return () => {
       document.body.removeChild(script);
     };
@@ -57,6 +58,7 @@ const LoginPage = () => {
             rollNumber: data.data.rollNumber,
           },
         };
+
         login(payload);
         navigate('/dashboard', { replace: true });
         return;
@@ -73,9 +75,7 @@ const LoginPage = () => {
   };
 
   useEffect(() => {
-    if (!scriptLoaded || !clientId || !window.google || !buttonRef.current) {
-      return;
-    }
+    if (!scriptLoaded || !clientId || !window.google || !buttonRef.current) return;
 
     window.google.accounts.id.initialize({
       client_id: clientId,
@@ -84,7 +84,7 @@ const LoginPage = () => {
     });
 
     window.google.accounts.id.renderButton(buttonRef.current, {
-      theme: 'outline',
+      theme: 'filled_black', // black button
       size: 'large',
       width: 320,
       shape: 'pill',
@@ -94,16 +94,28 @@ const LoginPage = () => {
 
   return (
     <div className="screen login-screen">
-      <p className="page-watermark">Login page</p>
+
+      {/* NEW HEADER */}
+      <div className="login-header">
+        <h1 className="login-title">Welcome to ERP Billing Portal</h1>
+        <p className="login-subtitle">Secure login using your institute Google Account</p>
+      </div>
+
+      {/* LOGIN CARD */}
       <div className="login-card">
         <div className="google-button-wrapper">
           <div ref={buttonRef} />
         </div>
         {error && <p className="error-text">{error}</p>}
       </div>
+
+      {/* FOOTER */}
+      <div className="login-footer">
+        © 2025 ERP Billing System — All rights reserved.
+      </div>
+      
     </div>
   );
 };
 
 export default LoginPage;
-

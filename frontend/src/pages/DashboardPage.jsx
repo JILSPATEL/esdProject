@@ -71,7 +71,7 @@ const DashboardPage = () => {
           toNumber(bill.amount),
         )}`,
         billId: bill.billId,
-        showDownload: bill.isPaid,
+        showDownload: (payment?.amount ?? 0) > 0, // FIXED: ALWAYS SHOW FOR PAID
       }));
     };
 
@@ -107,7 +107,7 @@ const DashboardPage = () => {
       }
       setError(err.response?.data?.message || 'Failed to download receipt.');
     }
-  }
+  };
 
   const onLogout = () => {
     logout();
@@ -136,7 +136,6 @@ const DashboardPage = () => {
 
   return (
     <div className="screen dashboard-screen">
-      {/* <div className="after-login-title">After login</div> */}
       <div className="dashboard-card">
         <header className="student-header">
           <div className="student-name">
@@ -152,25 +151,21 @@ const DashboardPage = () => {
                 <span className={`status-pill ${entry.status === 'Paid' ? 'paid' : 'due'}`}>{entry.status}</span>
                 {index !== timelineEntries.length - 1 && <span className="connector-line" />}
               </div>
+
               <div className="timeline-card">
                 <div className="timeline-text">
                   <p className="timeline-title">{entry.title}</p>
                   <p className="timeline-subtitle">{entry.subtitle}</p>
                 </div>
+
                 {entry.showDownload && (
-                  <button
-                    type="button"
-                    className="download-btn"
-                    onClick={() => handleDownload(entry.billId)}
-                    aria-label="Download receipt"
-                  >
-                    <span className="download-icon" />
+                  <button className="download-btn" onClick={() => handleDownload(entry.billId)}>
+                    <span className="download-icon"></span>
                   </button>
                 )}
               </div>
             </div>
           ))}
-          {timelineEntries.length === 0 && <p className="empty-text">No transactions found.</p>}
         </section>
 
         <div className="actions">
@@ -184,4 +179,3 @@ const DashboardPage = () => {
 };
 
 export default DashboardPage;
-
