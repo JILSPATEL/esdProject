@@ -46,8 +46,7 @@ public class Student {
     @Column(name = "placement_id")
     private Integer placementId;
     
-    // For authentication - password field (not in DB schema, but needed for login)
-    @Transient
+    @Column(name = "password", nullable = false, length = 255)
     private String password;
     
     // Constructors

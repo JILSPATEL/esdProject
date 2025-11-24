@@ -22,10 +22,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         Student student = studentRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Student not found with email: " + email));
         
-        // For demo purposes: use email as password (since password field doesn't exist in DB)
-        // In production, you should have a password field and use BCryptPasswordEncoder
-        // The password encoder will handle the comparison
-        return new User(student.getEmail(), student.getEmail(), new ArrayList<>());
+        // Load actual password from database (BCrypt hashed)
+        return new User(student.getEmail(), student.getPassword(), new ArrayList<>());
     }
 }
 

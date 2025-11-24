@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,22 +29,15 @@ public class AuthService {
             Student student = studentRepository.findByEmail(loginRequest.getEmail())
                     .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
             
-            // For demo purposes: use email as password (since password field doesn't exist in DB)
-            // In production, you should have a password field and use password encoder
-            try {
-                authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()
-                    )
-                );
-            } catch (BadCredentialsException e) {
-                // For demo: if authentication fails, check if password matches email
-                // This is a workaround since we don't have password in DB
-                if (!loginRequest.getPassword().equals(loginRequest.getEmail())) {
-                    throw new UnauthorizedException("Invalid email or password");
-                }
-            }
+            // Authenticate using BCrypt password encoder
+            // The AuthenticationManager will use CustomUserDetailsService to load user
+            // and BCryptPasswordEncoder to compare passwords
+            authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                    loginRequest.getEmail(),
+                    loginRequest.getPassword()
+                )
+            );
             
             String token = jwtUtil.generateToken(student.getEmail(), student.getStudentId());
             

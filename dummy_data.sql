@@ -20,18 +20,20 @@ ALTER TABLE student_payment AUTO_INCREMENT = 1;
 
 -- ============================================
 -- 1. INSERT STUDENTS
+-- Password format: first_name@roll_number
+-- Passwords are BCrypt hashed
 -- ============================================
-INSERT INTO students (roll_number, first_name, last_name, email, cgpa, total_credits, graduate_year, domain_id, specialisation_id) VALUES
-('STU001', 'John', 'Doe', 'john.doe@university.edu', 8.5, 120, 2025, 1, 1),
-('STU002', 'Jane', 'Smith', 'jane.smith@university.edu', 9.2, 115, 2025, 1, 1),
-('STU003', 'Michael', 'Johnson', 'michael.j@university.edu', 7.8, 110, 2026, 2, 2),
-('STU004', 'Emily', 'Williams', 'emily.w@university.edu', 8.9, 125, 2025, 1, 1),
-('STU005', 'David', 'Brown', 'david.brown@university.edu', 7.5, 105, 2026, 2, 2),
-('STU006', 'Sarah', 'Davis', 'sarah.davis@university.edu', 9.0, 130, 2024, 1, 1),
-('STU007', 'Robert', 'Miller', 'robert.m@university.edu', 8.3, 120, 2025, 1, 1),
-('STU008', 'Lisa', 'Wilson', 'lisa.wilson@university.edu', 8.7, 115, 2025, 2, 2),
-('STU009', 'James', 'Moore', 'james.moore@university.edu', 7.9, 110, 2026, 2, 2),
-('STU010', 'Amanda', 'Taylor', 'amanda.t@university.edu', 9.1, 125, 2025, 1, 1);
+INSERT INTO students (roll_number, first_name, last_name, email, password, cgpa, total_credits, graduate_year, domain_id, specialisation_id) VALUES
+('STU001', 'John', 'Doe', 'john.doe@university.edu', '$2a$10$Kt0RjBGtiSkeCH48rgY/SeFjQcKXnrbzZO2o9CauDhnsMRCEEV6gu', 8.5, 120, 2025, 1, 1),  -- Password: John@STU001
+('STU002', 'Jane', 'Smith', 'jane.smith@university.edu', '$2a$10$JR87RPjU3L5H//mvA7MLyOEGSU9pRFGX2NBR.KCyajNfyLeVTFe1i', 9.2, 115, 2025, 1, 1),  -- Password: Jane@STU002
+('STU003', 'Michael', 'Johnson', 'michael.j@university.edu', '$2a$10$fmSsdjmS93Rw/DGGPiwQie52Ye4MzDAeuc00dEA.OEbP//4q5sFou', 7.8, 110, 2026, 2, 2),  -- Password: Michael@STU003
+('STU004', 'Emily', 'Williams', 'emily.w@university.edu', '$2a$10$dB5HniqeF6WXaanLcpIdDe8LhrDSsPA0PhMLVDndifZRW7kRcA9BC', 8.9, 125, 2025, 1, 1),  -- Password: Emily@STU004
+('STU005', 'David', 'Brown', 'david.brown@university.edu', '$2a$10$d1LQ2l9UJPNTQlpu57GCpegsKTxfITKx7y65rHHr6tn8wugneYjUi', 7.5, 105, 2026, 2, 2),  -- Password: David@STU005
+('STU006', 'Sarah', 'Davis', 'sarah.davis@university.edu', '$2a$10$1.qKD.qJto6CppZanJJFPOWO6t0dy0L/FI7DMsDhnKiZ7FnuCTl7e', 9.0, 130, 2024, 1, 1),  -- Password: Sarah@STU006
+('STU007', 'Robert', 'Miller', 'robert.m@university.edu', '$2a$10$KxlG6W5RhTjfaIZ3gcoqtupBNrUx3kLba2JSVI2wvGdR6pwldlfwO', 8.3, 120, 2025, 1, 1),  -- Password: Robert@STU007
+('STU008', 'Lisa', 'Wilson', 'lisa.wilson@university.edu', '$2a$10$jLPVekOlqbWWmY.gIGhweOvCh2U1QkWLl3QRRqwU1AdJzCHIQbRBm', 8.7, 115, 2025, 2, 2),  -- Password: Lisa@STU008
+('STU009', 'James', 'Moore', 'james.moore@university.edu', '$2a$10$Z0a0FCotdH881V81z5AZuuibyRdzDdxw5XzKr5uKLDgDnd2GmVQnS', 7.9, 110, 2026, 2, 2),  -- Password: James@STU009
+('STU010', 'Amanda', 'Taylor', 'amanda.t@university.edu', '$2a$10$OLLfIRN3w3RQ7eyJA4Jc7eCGoYbaLdU4nVqMmS5c1cgZ6.iKZVsJy', 9.1, 125, 2025, 1, 1);  -- Password: Amanda@STU010
 
 -- ============================================
 -- 2. INSERT BILLS (2025 Academic Year)
