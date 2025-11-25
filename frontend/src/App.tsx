@@ -1,15 +1,20 @@
+import type { ReactNode } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import NoRecordPage from './pages/NoRecordPage';
 import { useAuth } from './context/AuthContext';
 
-const ProtectedRoute = ({ children }) => {
+type ProtectedRouteProps = {
+  children: ReactNode;
+};
+
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { token } = useAuth();
   if (!token) {
     return <Navigate to="/" replace />;
   }
-  return children;
+  return <>{children}</>;
 };
 
 const App = () => {

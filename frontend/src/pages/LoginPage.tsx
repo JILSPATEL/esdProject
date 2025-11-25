@@ -1,25 +1,44 @@
-import { useEffect, useRef, useState } from 'react';
+import type { AxiosError } from 'axios';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../api/client';
 import { useAuth } from '../context/AuthContext';
 
+type LoginSuccessResponse = {
+  success: boolean;
+  data: {
+    token: string;
+    email: string;
+    studentId?: string;
+    firstName?: string;
+    lastName?: string;
+    rollNumber?: string;
+  };
+  message?: string;
+};
+
+type ApiErrorResponse = {
+  message?: string;
+};
+
 const LoginPage = () => {
   const { token, login } = useAuth();
   const navigate = useNavigate();
-  const [scriptLoaded, setScriptLoaded] = useState(false);
+  const [scriptLoaded, setScriptLoaded] = useState(
+    () => typeof window !== 'undefined' && Boolean(window.google),
+  );
   const [error, setError] = useState('');
-  const buttonRef = useRef(null);
+  const buttonRef = useRef<HTMLDivElement | null>(null);
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
   useEffect(() => {
     if (token) {
-      navigate('/dashboard', { replace: true });
+      void navigate('/dashboard', { replace: true });
     }
   }, [token, navigate]);
 
   useEffect(() => {
     if (window.google) {
-      setScriptLoaded(true);
       return;
     }
     const script = document.createElement('script');
@@ -31,11 +50,13 @@ const LoginPage = () => {
     document.body.appendChild(script);
 
     return () => {
-      document.body.removeChild(script);
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
     };
   }, []);
 
-  const handleCredentialResponse = async (response) => {
+  const handleCredentialResponse = useCallback(async (response: google.accounts.id.CredentialResponse) => {
     setError('');
     if (!response?.credential) {
       setError('Google did not return a credential. Please try again.');
@@ -43,7 +64,7 @@ const LoginPage = () => {
     }
 
     try {
-      const { data } = await apiClient.post('/api/auth/login', {
+      const { data } = await apiClient.post<LoginSuccessResponse>('/api/auth/login', {
         credential: response.credential,
       });
 
@@ -60,48 +81,53 @@ const LoginPage = () => {
         };
 
         login(payload);
-        navigate('/dashboard', { replace: true });
+        void navigate('/dashboard', { replace: true });
         return;
       }
 
       setError(data?.message || 'Unable to login. Please try again.');
     } catch (err) {
-      if (err.response?.status === 401) {
-        navigate('/no-record', { replace: true });
+      const axiosError = err as AxiosError<ApiErrorResponse>;
+      if (axiosError.response?.status === 401) {
+        void navigate('/no-record', { replace: true });
         return;
       }
-      setError(err.response?.data?.message || 'Something went wrong. Please try again.');
+      setError(axiosError.response?.data?.message || 'Something went wrong. Please try again.');
     }
-  };
+  }, [login, navigate]);
+
+  const forwardCredentialResponse = useCallback(
+    (response: google.accounts.id.CredentialResponse) => {
+      void handleCredentialResponse(response);
+    },
+    [handleCredentialResponse],
+  );
 
   useEffect(() => {
     if (!scriptLoaded || !clientId || !window.google || !buttonRef.current) return;
 
     window.google.accounts.id.initialize({
       client_id: clientId,
-      callback: handleCredentialResponse,
+      callback: forwardCredentialResponse,
       ux_mode: 'popup',
     });
 
     window.google.accounts.id.renderButton(buttonRef.current, {
-      theme: 'filled_black', // black button
+      theme: 'filled_black',
       size: 'large',
       width: 320,
       shape: 'pill',
       text: 'signin_with',
     });
-  }, [scriptLoaded, clientId]);
+  }, [scriptLoaded, clientId, forwardCredentialResponse]);
 
   return (
     <div className="screen login-screen">
-
-      {/* NEW HEADER */}
       <div className="login-header">
         <h1 className="login-title">Welcome to ERP Billing Portal</h1>
         <p className="login-subtitle">Secure login using your institute Google Account</p>
       </div>
 
-      {/* LOGIN CARD */}
       <div className="login-card">
         <div className="google-button-wrapper">
           <div ref={buttonRef} />
@@ -109,11 +135,7 @@ const LoginPage = () => {
         {error && <p className="error-text">{error}</p>}
       </div>
 
-      {/* FOOTER */}
-      <div className="login-footer">
-        © 2025 ERP Billing System — All rights reserved.
-      </div>
-      
+      <div className="login-footer">© 2025 ERP Billing System — All rights reserved.</div>
     </div>
   );
 };

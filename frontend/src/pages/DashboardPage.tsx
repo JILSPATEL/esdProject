@@ -1,7 +1,45 @@
+import type { AxiosError } from 'axios';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../api/client';
 import { useAuth } from '../context/AuthContext';
+
+type Payment = {
+  paymentId?: string | number;
+  amount?: number | string | null;
+};
+
+type BillSummary = {
+  billId: string | number;
+  description: string;
+  amount?: number | string | null;
+  remainingAmount?: number | string | null;
+  payments?: Payment[];
+};
+
+type BillHistory = {
+  dueBills: BillSummary[];
+  paidBills: BillSummary[];
+};
+
+type BillHistoryResponse = {
+  success: boolean;
+  data: BillHistory;
+  message?: string;
+};
+
+type ApiErrorResponse = {
+  message?: string;
+};
+
+type TimelineEntry = {
+  id: string;
+  status: 'Due' | 'Paid';
+  title: string;
+  subtitle: string;
+  billId: string | number;
+  showDownload: boolean;
+};
 
 const currencyFormatter = new Intl.NumberFormat('en-IN', {
   style: 'currency',
@@ -12,84 +50,84 @@ const currencyFormatter = new Intl.NumberFormat('en-IN', {
 const DashboardPage = () => {
   const { profile, logout } = useAuth();
   const navigate = useNavigate();
-  const [history, setHistory] = useState({ dueBills: [], paidBills: [] });
+  const [history, setHistory] = useState<BillHistory>({ dueBills: [], paidBills: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const { data } = await apiClient.get('/api/bills/history');
+        const { data } = await apiClient.get<BillHistoryResponse>('/api/bills/history');
         if (data?.success) {
           setHistory(data.data || { dueBills: [], paidBills: [] });
         } else {
           setError('Unable to load bill history.');
         }
       } catch (err) {
-        if (err.response?.status === 401) {
+        const axiosError = err as AxiosError<ApiErrorResponse>;
+        if (axiosError.response?.status === 401) {
           logout();
-          navigate('/', { replace: true });
+          void navigate('/', { replace: true });
           return;
         }
-        if (err.response?.status === 404) {
-          navigate('/no-record', { replace: true });
+        if (axiosError.response?.status === 404) {
+          void navigate('/no-record', { replace: true });
           return;
         }
-        setError(err.response?.data?.message || 'Unable to load bill history.');
+        setError(axiosError.response?.data?.message || 'Unable to load bill history.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchHistory();
+    void fetchHistory();
   }, [logout, navigate]);
 
-  const toNumber = (value) => Number(value ?? 0);
+  const toNumber = (value: number | string | null | undefined) => Number(value ?? 0);
 
-  const timelineEntries = useMemo(() => {
-    const dueEntries =
-      history?.dueBills?.map((bill) => ({
-        id: `due-${bill.billId}`,
-        status: 'Due',
-        title: bill.description,
-        subtitle: `Pending ${currencyFormatter.format(toNumber(bill.remainingAmount))} of total ${currencyFormatter.format(
-          toNumber(bill.amount),
-        )}`,
-        billId: bill.billId,
-        showDownload: false,
-      })) || [];
+  const timelineEntries = useMemo<TimelineEntry[]>(() => {
+    const dueEntries = history.dueBills.map<TimelineEntry>((bill) => ({
+      id: `due-${bill.billId}`,
+      status: 'Due',
+      title: bill.description,
+      subtitle: `Pending ${currencyFormatter.format(toNumber(bill.remainingAmount))} of total ${currencyFormatter.format(
+        toNumber(bill.amount),
+      )}`,
+      billId: bill.billId,
+      showDownload: false,
+    }));
 
-    const paidEntries = [];
+    const paidEntries: TimelineEntry[] = [];
 
-    const formatInstallments = (bill) => {
+    const formatInstallments = (bill: BillSummary) => {
       const payments = bill.payments || [];
-      return payments.map((payment, index) => ({
-        id: `payment-${bill.billId}-${payment.paymentId || index}`,
+      return payments.map<TimelineEntry>((payment, index) => ({
+        id: `payment-${bill.billId}-${payment.paymentId ?? index}`,
         status: 'Paid',
         title: `Installment ${index + 1} of ${bill.description}`,
         subtitle: `Amount ${currencyFormatter.format(toNumber(payment.amount))} out of total ${currencyFormatter.format(
           toNumber(bill.amount),
         )}`,
         billId: bill.billId,
-        showDownload: (payment?.amount ?? 0) > 0, // FIXED: ALWAYS SHOW FOR PAID
+        showDownload: toNumber(payment?.amount) > 0,
       }));
     };
 
-    history?.paidBills?.forEach((bill) => {
+    history.paidBills.forEach((bill) => {
       paidEntries.push(...formatInstallments(bill));
     });
 
-    history?.dueBills?.forEach((bill) => {
+    history.dueBills.forEach((bill) => {
       paidEntries.push(...formatInstallments(bill));
     });
 
     return [...dueEntries, ...paidEntries];
   }, [history]);
 
-  const handleDownload = async (billId) => {
+  const handleDownload = async (billId: string | number) => {
     try {
-      const response = await apiClient.get(`/api/receipts/${billId}/download`, {
-        responseType: 'blob',
+      const response = await apiClient.get<Blob>(`/api/receipts/${billId}/download`, {
+        responseType: 'blob' as const,
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
@@ -100,18 +138,19 @@ const DashboardPage = () => {
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      if (err.response?.status === 401) {
+      const axiosError = err as AxiosError<ApiErrorResponse>;
+      if (axiosError.response?.status === 401) {
         logout();
-        navigate('/', { replace: true });
+        void navigate('/', { replace: true });
         return;
       }
-      setError(err.response?.data?.message || 'Failed to download receipt.');
+      setError(axiosError.response?.data?.message || 'Failed to download receipt.');
     }
   };
 
   const onLogout = () => {
     logout();
-    navigate('/', { replace: true });
+    void navigate('/', { replace: true });
   };
 
   if (loading) {
@@ -159,8 +198,13 @@ const DashboardPage = () => {
                 </div>
 
                 {entry.showDownload && (
-                  <button className="download-btn" onClick={() => handleDownload(entry.billId)}>
-                    <span className="download-icon"></span>
+                  <button
+                    className="download-btn"
+                    onClick={() => {
+                      void handleDownload(entry.billId);
+                    }}
+                  >
+                    <span className="download-icon" />
                   </button>
                 )}
               </div>

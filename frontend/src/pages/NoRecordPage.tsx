@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom';
 const NoRecordPage = () => {
   const navigate = useNavigate();
 
+  const handleBackToLogin = () => {
+    void navigate('/');
+  };
+
   return (
     <div className="screen empty-screen">
       <div className="empty-card">
@@ -11,7 +15,7 @@ const NoRecordPage = () => {
         <div className="empty-illustration" aria-hidden>
           <span className="sad-face">:(</span>
         </div>
-        <button className="primary-btn" onClick={() => navigate('/')}>
+        <button className="primary-btn" onClick={handleBackToLogin}>
           Back to Login
         </button>
       </div>
@@ -20,4 +24,3 @@ const NoRecordPage = () => {
 };
 
 export default NoRecordPage;
-
