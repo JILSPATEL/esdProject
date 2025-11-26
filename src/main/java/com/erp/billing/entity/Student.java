@@ -46,16 +46,13 @@ public class Student {
     @Column(name = "placement_id")
     private Integer placementId;
     
-    @Column(name = "password", nullable = false, length = 255)
-    private String password;
-    
     // Constructors
     public Student() {
     }
     
     public Student(Integer studentId, String rollNumber, String firstName, String lastName, String email, 
                    String photographPath, BigDecimal cgpa, Integer totalCredits, Integer graduateYear, 
-                   Integer domainId, Integer specialisationId, Integer placementId, String password) {
+                   Integer domainId, Integer specialisationId, Integer placementId) {
         this.studentId = studentId;
         this.rollNumber = rollNumber;
         this.firstName = firstName;
@@ -68,7 +65,6 @@ public class Student {
         this.domainId = domainId;
         this.specialisationId = specialisationId;
         this.placementId = placementId;
-        this.password = password;
     }
     
     // Getters and Setters
@@ -166,14 +162,6 @@ public class Student {
     
     public void setPlacementId(Integer placementId) {
         this.placementId = placementId;
-    }
-    
-    public String getPassword() {
-        return password;
-    }
-    
-    public void setPassword(String password) {
-        this.password = password;
     }
 }
 

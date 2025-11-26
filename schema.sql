@@ -1,7 +1,3 @@
--- ============================================
--- Database schema for the Billing System
--- ============================================
-
 CREATE TABLE IF NOT EXISTS students (
     student_id INT AUTO_INCREMENT PRIMARY KEY,
     roll_number VARCHAR(50) NOT NULL UNIQUE,
@@ -61,7 +57,6 @@ CREATE TABLE IF NOT EXISTS student_payment (
     INDEX idx_payment_student_bill (student_id, bill_id)
 );
 
--- Optional helper view for remaining balance per student/bill
 CREATE OR REPLACE VIEW vw_student_bill_balance AS
 SELECT
     sb.student_id,

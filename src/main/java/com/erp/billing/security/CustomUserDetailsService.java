@@ -22,8 +22,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         Student student = studentRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Student not found with email: " + email));
         
-        // Load actual password from database (BCrypt hashed)
-        return new User(student.getEmail(), student.getPassword(), new ArrayList<>());
+        // OAuth-only authentication - password not used, empty string provided for UserDetails
+        return new User(student.getEmail(), "", new ArrayList<>());
     }
 }
 
