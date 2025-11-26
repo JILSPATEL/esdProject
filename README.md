@@ -348,5 +348,5 @@ This project is developed as part of the Enterprise Software Development course.
 
 ---
 
-**Developed by**: M.Tech Students  
+**Developed by**: Jils Patel  
 **Course**: Enterprise Software Development (ESD)
