@@ -1,141 +1,33 @@
-import type { AxiosError } from 'axios';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import apiClient from '../api';
-import { useAuth } from '../context/AuthContext';
-
-type LoginSuccessResponse = {
-  success: boolean;
-  data: {
-    token: string;
-    email: string;
-    studentId?: string;
-    firstName?: string;
-    lastName?: string;
-    rollNumber?: string;
-  };
-  message?: string;
-};
-
-type ApiErrorResponse = {
-  message?: string;
-};
-
 const LoginPage = () => {
-  const { token, login } = useAuth();
-  const navigate = useNavigate();
-  const [scriptLoaded, setScriptLoaded] = useState(
-    () => typeof window !== 'undefined' && Boolean(window.google),
-  );
-  const [error, setError] = useState('');
-  const buttonRef = useRef<HTMLDivElement | null>(null);
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-
-  useEffect(() => {
-    if (token) {
-      void navigate('/dashboard', { replace: true });
-    }
-  }, [token, navigate]);
-
-  useEffect(() => {
-    if (window.google) {
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
-    script.onload = () => setScriptLoaded(true);
-    script.onerror = () => setError('Unable to load Google services. Please refresh.');
-    document.body.appendChild(script);
-
-    return () => {
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-    };
-  }, []);
-
-  const handleCredentialResponse = useCallback(async (response: google.accounts.id.CredentialResponse) => {
-    setError('');
-    if (!response?.credential) {
-      setError('Google did not return a credential. Please try again.');
-      return;
-    }
-
-    try {
-      const { data } = await apiClient.post<LoginSuccessResponse>('/api/auth/login', {
-        credential: response.credential,
-      });
-
-      if (data?.success) {
-        const payload = {
-          token: data.data.token,
-          profile: {
-            email: data.data.email,
-            studentId: data.data.studentId,
-            firstName: data.data.firstName,
-            lastName: data.data.lastName,
-            rollNumber: data.data.rollNumber,
-          },
-        };
-
-        login(payload);
-        void navigate('/dashboard', { replace: true });
-        return;
-      }
-
-      setError(data?.message || 'Unable to login. Please try again.');
-    } catch (err) {
-      const axiosError = err as AxiosError<ApiErrorResponse>;
-      if (axiosError.response?.status === 401) {
-        void navigate('/no-record', { replace: true });
-        return;
-      }
-      setError(axiosError.response?.data?.message || 'Something went wrong. Please try again.');
-    }
-  }, [login, navigate]);
-
-  const forwardCredentialResponse = useCallback(
-    (response: google.accounts.id.CredentialResponse) => {
-      void handleCredentialResponse(response);
-    },
-    [handleCredentialResponse],
-  );
-
-  useEffect(() => {
-    if (!scriptLoaded || !clientId || !window.google || !buttonRef.current) return;
-
-    window.google.accounts.id.initialize({
-      client_id: clientId,
-      callback: forwardCredentialResponse,
-      ux_mode: 'popup',
-    });
-
-    window.google.accounts.id.renderButton(buttonRef.current, {
-      theme: 'filled_black',
-      size: 'large',
-      width: 320,
-      shape: 'pill',
-      text: 'signin_with',
-    });
-  }, [scriptLoaded, clientId, forwardCredentialResponse]);
+  const onLoginClick = () => {
+    window.location.href = 'http://localhost:8080/login';
+  };
 
   return (
     <div className="screen login-screen">
-      <div className="login-header">
-        <h1 className="login-title">Welcome to ERP Billing Portal</h1>
-        <p className="login-subtitle">Secure login using your institute Google Account</p>
-      </div>
-
       <div className="login-card">
-        <div className="google-button-wrapper">
-          <div ref={buttonRef} />
+        <div className="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
         </div>
-        {error && <p className="error-text">{error}</p>}
-      </div>
 
-      <div className="login-footer">© 2025 ERP Billing System — All rights reserved.</div>
+        <h1 className="login-title">Student Portal</h1>
+        <p className="login-subtitle">Sign in to manage your fees and payments</p>
+
+        <button className="btn btn-primary login-btn-full" onClick={onLoginClick}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+            <polyline points="10 17 15 12 10 7" />
+            <line x1="15" y1="12" x2="3" y2="12" />
+          </svg>
+          Sign in with Google
+        </button>
+
+        <div className="login-footer">
+          &copy; 2025 ERP System. Secure & Encrypted.
+        </div>
+      </div>
     </div>
   );
 };

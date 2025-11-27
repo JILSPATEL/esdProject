@@ -1,37 +1,30 @@
 import axios from 'axios';
 
-type StoredAuth = {
-  token?: string | null;
-};
-
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080',
+  withCredentials: true,
 });
 
-apiClient.interceptors.request.use((config) => {
-  const stored = localStorage.getItem('erp-auth');
-
-  if (stored) {
-    try {
-      const parsed: unknown = JSON.parse(stored);
-
-      if (typeof parsed === 'object' && parsed !== null && 'token' in parsed) {
-        const token = (parsed as StoredAuth).token;
-
-        if (token) {
-          config.headers = {
-            ...config.headers,
-            Authorization: `Bearer ${token}`,
-          };
+// Add a request interceptor to include the JWT token in the Authorization header
+apiClient.interceptors.request.use(
+  (config) => {
+    // Get token from sessionStorage (Tab-specific)
+    const authData = sessionStorage.getItem('erp-auth');
+    if (authData) {
+      try {
+        const parsed = JSON.parse(authData);
+        if (parsed.token) {
+          config.headers.Authorization = `Bearer ${parsed.token}`;
         }
+      } catch (error) {
+        console.error('Failed to parse auth data:', error);
       }
-    } catch {
-      // ignore invalid payload
     }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-
-  return config;
-});
+);
 
 export default apiClient;
-

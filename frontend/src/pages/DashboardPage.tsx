@@ -163,7 +163,7 @@ const DashboardPage = () => {
   if (loading) {
     return (
       <div className="screen fallback-screen">
-        <div className="loader" />
+        <div className="spinner" />
         <p>Loading your payment history...</p>
       </div>
     );
@@ -172,8 +172,8 @@ const DashboardPage = () => {
   if (error) {
     return (
       <div className="screen fallback-screen">
-        <p className="error-text">{error}</p>
-        <button className="secondary-btn" onClick={() => window.location.reload()}>
+        <p className="error-msg">{error}</p>
+        <button className="btn btn-primary" onClick={() => window.location.reload()}>
           Retry
         </button>
       </div>
@@ -182,48 +182,63 @@ const DashboardPage = () => {
 
   return (
     <div className="screen dashboard-screen">
-      <div className="dashboard-card">
-        <header className="student-header">
-          <div className="student-name">
-            {profile?.firstName} {profile?.lastName}
+      <div className="dashboard-container">
+        <header className="dashboard-header">
+          <div className="user-welcome">
+            <h1>Welcome back, {profile?.firstName}</h1>
+            <div className="user-roll">Roll Number: {profile?.rollNumber}</div>
           </div>
-          <div className="student-roll">{profile?.rollNumber}</div>
-        </header>
-
-        <section className="timeline">
-          {timelineEntries.map((entry, index) => (
-            <div className="timeline-row" key={entry.id}>
-              <div className="timeline-connector">
-                <span className={`status-pill ${entry.status === 'Paid' ? 'paid' : 'due'}`}>{entry.status}</span>
-                {index !== timelineEntries.length - 1 && <span className="connector-line" />}
-              </div>
-
-              <div className="timeline-card">
-                <div className="timeline-text">
-                  <p className="timeline-title">{entry.title}</p>
-                  <p className="timeline-subtitle">{entry.subtitle}</p>
-                </div>
-
-                {entry.showDownload && (
-                  <button
-                    className="download-btn"
-                    onClick={() => {
-                      void handleDownload(entry.billId);
-                    }}
-                  >
-                    <span className="download-icon" />
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </section>
-
-        <div className="actions">
-          <button className="secondary-btn" onClick={onLogout}>
+          <button className="btn btn-danger-outline" onClick={onLogout}>
             Logout
           </button>
-        </div>
+        </header>
+
+        <section className="timeline-section">
+          <h2 className="section-title">Payment History</h2>
+
+          <div className="timeline-list">
+            {timelineEntries.map((entry) => (
+              <div className="timeline-item" key={entry.id}>
+                <div className={`timeline-icon ${entry.status === 'Paid' ? 'paid' : 'due'}`}>
+                  {entry.status === 'Paid' ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                  )}
+                </div>
+
+                <div className="timeline-content">
+                  <div className="bill-details">
+                    <span className={`status-badge ${entry.status === 'Paid' ? 'paid' : 'due'}`}>
+                      {entry.status}
+                    </span>
+                    <h3>{entry.title}</h3>
+                    <p>{entry.subtitle}</p>
+                  </div>
+
+                  {entry.showDownload && (
+                    <button
+                      className="action-btn"
+                      onClick={() => void handleDownload(entry.billId)}
+                      title="Download Receipt"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );

@@ -64,7 +64,20 @@ This Enterprise Software Development (ESD) project is a comprehensive billing ma
 - **Routing**: React Router DOM 7.9.6
 - **HTTP Client**: Axios 1.13.2
 - **Build Tool**: Vite 7.2.4
-- **Styling**: CSS
+- **Styling**: Custom CSS with Professional Modern Theme
+
+### UI Design
+- **Design System**: Professional Modern Theme
+- **Color Palette**: Blue/Violet gradient scheme with slate backgrounds
+- **Typography**: Inter font family (400, 500, 600, 700, 800 weights)
+- **Visual Effects**:
+  - Smooth animations and transitions
+  - Gradient backgrounds and glassmorphism effects
+  - Interactive hover states with scale and rotation
+  - Staggered timeline animations
+  - Professional shadows and depth
+- **Responsive**: Mobile-friendly layouts
+- **Accessibility**: High contrast ratios and clear visual hierarchy
 
 ## 📁 Project Structure
 
@@ -74,6 +87,7 @@ esdProject/
 │   ├── controller/           # REST API Controllers
 │   │   ├── AuthController.java
 │   │   ├── BillController.java
+│   │   ├── OAuthController.java
 │   │   └── ReceiptController.java
 │   ├── dto/                  # Data Transfer Objects
 │   │   ├── ApiResponse.java
@@ -88,7 +102,14 @@ esdProject/
 │   │   ├── StudentBill.java
 │   │   └── StudentPayment.java
 │   ├── repository/           # Data Access Layer
+│   │   ├── BillRepository.java
+│   │   ├── StudentRepository.java
+│   │   ├── StudentBillRepository.java
+│   │   └── StudentPaymentRepository.java
 │   ├── service/              # Business Logic Layer
+│   │   ├── BillService.java
+│   │   ├── ReceiptService.java
+│   │   └── TokenService.java
 │   ├── security/             # Security Configuration
 │   │   ├── CustomUserDetailsService.java
 │   │   ├── GoogleTokenVerifier.java
@@ -96,39 +117,46 @@ esdProject/
 │   │   ├── JwtUtil.java
 │   │   └── SecurityConfig.java
 │   ├── mapper/               # Entity-DTO Mappers
-│   └── exception/            # Exception Handlers
+│   │   └── BillMapper.java
+│   ├── exception/            # Exception Handlers
+│   │   ├── GlobalExceptionHandler.java
+│   │   └── ResourceNotFoundException.java
+│   └── BillingApplication.java  # Main Application Class
 ├── src/main/resources/
 │   ├── application.properties
-│   └── db/migration/         # Database Migration Scripts
+│   └── static/               # Static resources
 ├── frontend/
 │   ├── public/
-│   │   ├── images/          # Static assets
-│   │   └── index.html       # HTML entry point (must be in root for Vite)
+│   │   └── images/           # Static assets
 │   ├── src/
-│   │   ├── components/      # Reusable components
-│   │   │   ├── containers/  # Container components
-│   │   │   └── presentation/ # Presentation components
-│   │   ├── context/         # React Context (Auth with session management)
+│   │   ├── context/          # React Context (Auth with session management)
 │   │   │   └── AuthContext.tsx
-│   │   ├── pages/           # Page Components
+│   │   ├── pages/            # Page Components
 │   │   │   ├── LoginPage.tsx
 │   │   │   ├── DashboardPage.tsx
-│   │   │   └── NoRecordPage.tsx
-│   │   ├── types/           # TypeScript Type Definitions
+│   │   │   ├── NoRecordPage.tsx
+│   │   │   └── OAuthCallback.tsx
+│   │   ├── types/            # TypeScript Type Definitions
 │   │   │   └── global.d.ts
-│   │   ├── api.ts           # Axios API client configuration
-│   │   ├── App.tsx          # Main App Component
-│   │   ├── App.css          # App-level styles
-│   │   ├── index.tsx        # Entry Point
-│   │   ├── index.css        # Global styles
+│   │   ├── api.ts            # Axios API client configuration
+│   │   ├── App.tsx           # Main App Component
+│   │   ├── App.css           # App-level styles
+│   │   ├── index.tsx         # Entry Point
+│   │   ├── index.css         # Global styles (Professional Modern Theme)
 │   │   └── react-app-env.d.ts  # React type definitions
-│   ├── .env                 # Environment variables
+│   ├── .env                  # Environment variables
+│   ├── index.html            # HTML entry point (Vite requirement)
 │   ├── package.json
+│   ├── tsconfig.json
 │   ├── vite.config.ts
-│   └── README.md            # Frontend-specific documentation
-├── schema.sql               # Database Schema
-├── data.sql                 # Sample Data
-└── pom.xml                  # Maven Configuration
+│   └── README.md             # Frontend-specific documentation
+├── schema.sql                # Database Schema
+├── insert.sql                # Sample Data
+├── alter.sql                 # Database Alterations
+├── ESD_Project_UML.jpg       # UML Diagram
+├── usecase.png               # Use Case Diagram
+├── OAuthFlow.pdf             # OAuth Flow Documentation
+└── pom.xml                   # Maven Configuration
 ```
 
 ## 📋 Prerequisites
