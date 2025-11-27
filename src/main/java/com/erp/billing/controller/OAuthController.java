@@ -111,7 +111,7 @@ public class OAuthController {
             // 4. Generate JWT
             String jwtToken = jwtUtil.generateToken(student.getEmail(), student.getStudentId());
 
-            // 5. Set Cookie (as per OAuthFlow.pdf)
+            // 5. Set Cookie 
             Cookie cookie = new Cookie("ID_TOKEN", idToken); // Storing Google ID Token in cookie as per original flow
             cookie.setHttpOnly(true);
             cookie.setSecure(false); // Set to true in production
