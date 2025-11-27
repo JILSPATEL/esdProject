@@ -25,6 +25,15 @@ This Enterprise Software Development (ESD) project is a comprehensive billing ma
 - **Google OAuth 2.0 Login**: Secure authentication using Google accounts
 - **JWT Token-based Authorization**: Stateless session management
 - **Protected Routes**: Frontend route guards for authenticated users
+- **User-Specific Single Session Enforcement**: 
+  - Each user can only be logged in on ONE tab at a time
+  - Same user re-login automatically logs out previous tabs within 1 second
+  - Different users can be logged in simultaneously on different tabs
+  - Real-time session synchronization across browser tabs
+- **Advanced Tab Management**:
+  - Unique tab ID generation and tracking
+  - Periodic session validation checks (1-second interval)
+  - Cross-tab logout synchronization via localStorage events
 
 ### Bill Management
 - **View Bill History**: Students can see all their assigned bills
@@ -92,18 +101,31 @@ esdProject/
 │   ├── application.properties
 │   └── db/migration/         # Database Migration Scripts
 ├── frontend/
+│   ├── public/
+│   │   ├── images/          # Static assets
+│   │   └── index.html       # HTML entry point (must be in root for Vite)
 │   ├── src/
-│   │   ├── api/             # API Service Layer
-│   │   ├── context/         # React Context (Auth)
+│   │   ├── components/      # Reusable components
+│   │   │   ├── containers/  # Container components
+│   │   │   └── presentation/ # Presentation components
+│   │   ├── context/         # React Context (Auth with session management)
+│   │   │   └── AuthContext.tsx
 │   │   ├── pages/           # Page Components
 │   │   │   ├── LoginPage.tsx
 │   │   │   ├── DashboardPage.tsx
 │   │   │   └── NoRecordPage.tsx
-│   │   ├── types/           # TypeScript Types
+│   │   ├── types/           # TypeScript Type Definitions
+│   │   │   └── global.d.ts
+│   │   ├── api.ts           # Axios API client configuration
 │   │   ├── App.tsx          # Main App Component
-│   │   └── main.tsx         # Entry Point
+│   │   ├── App.css          # App-level styles
+│   │   ├── index.tsx        # Entry Point
+│   │   ├── index.css        # Global styles
+│   │   └── react-app-env.d.ts  # React type definitions
+│   ├── .env                 # Environment variables
 │   ├── package.json
-│   └── vite.config.ts
+│   ├── vite.config.ts
+│   └── README.md            # Frontend-specific documentation
 ├── schema.sql               # Database Schema
 ├── data.sql                 # Sample Data
 └── pom.xml                  # Maven Configuration
@@ -271,6 +293,32 @@ npm install
 7. Backend validates user email against `students` table
 8. Backend generates JWT token
 9. Frontend stores JWT token for subsequent requests
+10. Frontend generates unique Tab ID and Session ID
+11. Frontend begins periodic session validation
+
+### Multi-Tab Session Management
+
+**Same User Scenario:**
+```
+Tab 1: User A logs in → Dashboard visible (Tab ID: tab-123)
+Tab 2: User A logs in again → Dashboard visible (Tab ID: tab-456)
+Result: Tab 1 detects different session → Logs out within 1 second ✓
+```
+
+**Different User Scenario:**
+```
+Tab 1: User A (userA@example.com) logs in → Dashboard visible
+Tab 2: User B (userB@example.com) logs in → Dashboard visible
+Result: Both tabs remain logged in with their respective users ✓
+```
+
+**Technical Implementation:**
+- Each browser tab generates a unique Tab ID on initialization
+- Login action stores the active Tab ID in localStorage
+- Every 1 second, each tab checks if it's still the active tab for its user
+- When a new login occurs, the storage event triggers in all other tabs
+- Tabs compare logged-in user emails before logging out
+- Only tabs with the same user email are logged out
 
 ### Example Login Request
 
@@ -341,6 +389,16 @@ npm run build
 - JWT tokens expire after 24 hours by default (configurable in application.properties)
 - Database passwords are stored using BCrypt encryption
 - All API responses follow a consistent `ApiResponse<T>` wrapper format
+- **Authentication System**:
+  - User-specific single session enforcement prevents same user from multiple active sessions
+  - Different users can be logged in simultaneously on different browser tabs
+  - Session validation occurs every 1 second via periodic checks
+  - localStorage events provide real-time cross-tab synchronization
+  - Tab IDs are unique per tab instance and persist for the tab's lifetime
+- **Frontend File Structure**:
+  - `index.html` must remain in root directory (Vite requirement)
+  - Static assets are served from `public/` folder
+  - React context manages global authentication state with tab tracking
 
 ## 📝 License
 

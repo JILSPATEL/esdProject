@@ -1,7 +1,7 @@
 import type { AxiosError } from 'axios';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../api/client';
+import apiClient from '../api';
 import { useAuth } from '../context/AuthContext';
 
 type Payment = {
@@ -48,11 +48,18 @@ const currencyFormatter = new Intl.NumberFormat('en-IN', {
 });
 
 const DashboardPage = () => {
-  const { profile, logout } = useAuth();
+  const { token, profile, logout } = useAuth();
   const navigate = useNavigate();
   const [history, setHistory] = useState<BillHistory>({ dueBills: [], paidBills: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Redirect to login if token is removed (e.g., logged out from another tab)
+  useEffect(() => {
+    if (!token) {
+      void navigate('/', { replace: true });
+    }
+  }, [token, navigate]);
 
   useEffect(() => {
     const fetchHistory = async () => {

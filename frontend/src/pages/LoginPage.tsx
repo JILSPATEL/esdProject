@@ -1,7 +1,7 @@
 import type { AxiosError } from 'axios';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../api/client';
+import apiClient from '../api';
 import { useAuth } from '../context/AuthContext';
 
 type LoginSuccessResponse = {
