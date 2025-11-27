@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 type Payment = {
   paymentId?: string | number;
   amount?: number | string | null;
+  paymentDate?: string;
 };
 
 type BillSummary = {
@@ -39,6 +40,8 @@ type TimelineEntry = {
   subtitle: string;
   billId: string | number;
   showDownload: boolean;
+  paymentDate?: string;
+  paymentId?: string | number;
 };
 
 const currencyFormatter = new Intl.NumberFormat('en-IN', {
@@ -117,6 +120,8 @@ const DashboardPage = () => {
         )}`,
         billId: bill.billId,
         showDownload: toNumber(payment?.amount) > 0,
+        paymentDate: payment.paymentDate,
+        paymentId: payment.paymentId,
       }));
     };
 
@@ -128,22 +133,32 @@ const DashboardPage = () => {
       paidEntries.push(...formatInstallments(bill));
     });
 
+    // Sort paid entries by payment date in descending order (newest first)
+    paidEntries.sort((a, b) => {
+      if (!a.paymentDate || !b.paymentDate) return 0;
+      return new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime();
+    });
+
     return [...dueEntries, ...paidEntries];
   }, [history]);
 
-  const handleDownload = async (billId: string | number) => {
+  const handleDownload = async (billId: string | number, paymentId?: string | number) => {
     try {
-      const response = await apiClient.get<Blob>(`/api/receipts/${billId}/download`, {
+      const url = paymentId
+        ? `/api/receipts/${billId}/download?paymentId=${paymentId}`
+        : `/api/receipts/${billId}/download`;
+
+      const response = await apiClient.get<Blob>(url, {
         responseType: 'blob' as const,
       });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const blobUrl = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `receipt_${billId}.pdf`);
+      link.href = blobUrl;
+      link.setAttribute('download', paymentId ? `receipt_partial_${paymentId}.pdf` : `receipt_${billId}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();
-      window.URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(blobUrl);
     } catch (err) {
       const axiosError = err as AxiosError<ApiErrorResponse>;
       if (axiosError.response?.status === 401) {
@@ -219,12 +234,21 @@ const DashboardPage = () => {
                     </span>
                     <h3>{entry.title}</h3>
                     <p>{entry.subtitle}</p>
+                    {entry.paymentDate && (
+                      <p className="payment-date">
+                        Paid on: {new Date(entry.paymentDate).toLocaleDateString('en-IN', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </p>
+                    )}
                   </div>
 
                   {entry.showDownload && (
                     <button
                       className="action-btn"
-                      onClick={() => void handleDownload(entry.billId)}
+                      onClick={() => void handleDownload(entry.billId, entry.paymentId)}
                       title="Download Receipt"
                     >
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

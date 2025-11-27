@@ -588,7 +588,23 @@ body {
     gap: 1rem;
   }
 
+
   .action-btn {
     align-self: flex-end;
   }
+}
+
+/* PAYMENT DATE */
+.payment-date {
+  font-size: 0.8rem !important;
+  color: var(--text-muted) !important;
+  font-weight: 500 !important;
+  margin-top: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.75rem;
+  background: linear-gradient(135deg, var(--bg-subtle), var(--primary-light));
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
 }
