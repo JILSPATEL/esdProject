@@ -12,7 +12,7 @@ const LoginPage = () => {
           </svg>
         </div>
 
-        <h1 className="login-title">Student Portal</h1>
+        <h1 className="login-title">Payment History Portal</h1>
         <p className="login-subtitle">Sign in to manage your fees and payments</p>
 
         <button className="btn btn-primary login-btn-full" onClick={onLoginClick}>

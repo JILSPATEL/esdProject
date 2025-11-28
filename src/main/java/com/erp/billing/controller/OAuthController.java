@@ -105,13 +105,18 @@ public class OAuthController {
             }
 
             // 3. Check if user exists
-            Student student = studentRepository.findByEmail(tokenInfo.getEmail())
-                    .orElseThrow(() -> new UnauthorizedException("Email not registered"));
+            Student student = studentRepository.findByEmail(tokenInfo.getEmail()).orElse(null);
+
+            // If student not found, redirect to norecord page
+            if (student == null) {
+                response.sendRedirect(frontendUrl + "/no-record");
+                return;
+            }
 
             // 4. Generate JWT
             String jwtToken = jwtUtil.generateToken(student.getEmail(), student.getStudentId());
 
-            // 5. Set Cookie 
+            // 5. Set Cookie
             Cookie cookie = new Cookie("ID_TOKEN", idToken); // Storing Google ID Token in cookie as per original flow
             cookie.setHttpOnly(true);
             cookie.setSecure(false); // Set to true in production
