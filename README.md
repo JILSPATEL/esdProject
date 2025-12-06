@@ -19,6 +19,11 @@ A full-stack web application for managing student bills and payments with Google
 
 This Enterprise Software Development (ESD) project is a comprehensive billing management system designed for students to view their bills, track payment history, and download payment receipts. The system uses Google OAuth for secure authentication and provides a modern React-based frontend interface.
 
+## 📋 Flow
+
+![esd-1](https://github.com/user-attachments/assets/d901919c-9102-48a7-8fcb-5e75193e4860)
+
+
 ## ✨ Features
 
 ### Authentication
