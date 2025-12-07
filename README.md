@@ -1,4 +1,4 @@
-# Student Billing Management System (ESD Project)
+# Student Billing Management System
 
 A full-stack web application for managing student bills and payments with Google OAuth authentication, built with Spring Boot and React.
 
