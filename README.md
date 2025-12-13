@@ -191,7 +191,7 @@ mysql -u root -p
 CREATE DATABASE billing_system;
 USE billing_system;
 SOURCE schema.sql;
-SOURCE data.sql;  # Optional: Load sample data
+SOURCE data.sql; # Optional: Load sample data
 ```
 
 ### 3. Google OAuth Setup
