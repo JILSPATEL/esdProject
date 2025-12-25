@@ -71,7 +71,7 @@ This Enterprise Software Development (ESD) project is a comprehensive billing ma
 - **Build Tool**: Vite 7.2.4
 - **Styling**: Custom CSS with Professional Modern Theme
 
-### UI Design
+### UI Design.
 - **Design System**: Professional Modern Theme
 - **Color Palette**: Blue/Violet gradient scheme with slate backgrounds
 - **Typography**: Inter font family (400, 500, 600, 700, 800 weights)
